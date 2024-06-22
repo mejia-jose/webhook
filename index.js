@@ -60,7 +60,7 @@ app.post("/webhook", express.json(), function (req, res) {
   agent.handleRequest(intentMap);
 });
 
-let port = 3000;
-app.listen(port, () => {
-  console.log("Estamos ejecutando el servidor en el puerto " + port);
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Estamos ejecutando el servidor en el puerto ${PORT}`);
 });
