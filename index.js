@@ -23,18 +23,19 @@ app.post("/webhook", express.json(), function (req, res) {
     agent.add(`¿Qué deseas hacer?`);
     agent.add(new Suggestion('Visualizar categorías'));
     agent.add(new Suggestion('Ver productos por categoría'));
-    agent.add(new Suggestion('Ver total de categorías'));
+    agent.add(new Suggestion('Ver total productos por categoría'));
   }
 
-  function getCategories(agent) {
-    axios.get(url+'all-categories')
-      .then(response => {
-        // Manejar la respuesta
+ 
+  function getCategories(agent) 
+  {
+    return axios
+      .get(url + "all-categories")
+      .then((response) => {
         const categories = response.data;
-        agent.add(`Las categorías disponibles son: ${categories.join(', ')}`);
+        agent.add(`Las categorías disponibles son: ${categories.join(", ")}`);
       })
-      .catch(error => {
-        // Manejar el error
+      .catch((error) => {
         console.error(error);
         agent.add(`Lo siento, hubo un error al obtener las categorías.`);
       });
@@ -45,11 +46,6 @@ app.post("/webhook", express.json(), function (req, res) {
     agent.add(`I didn't understand`);
     agent.add(`I'm sorry, can you try again?`);
   }
- /*  function ProbandoWebhook(agent) {
-    for (let i = 1; i <= 5; i++) {
-      agent.add(`Esta es la respuesta: ` + i);
-    }
-  } */
 
   let intentMap = new Map();
   intentMap.set("Default Welcome Intent", welcome);
