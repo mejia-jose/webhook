@@ -1,9 +1,9 @@
 {
   "name": "dialogflowfulfillment",
   "version": "1.0.0",
-  "description": "",
   "main": "index.js",
   "scripts": {
+    "start": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
@@ -16,5 +16,7 @@
   },
   "devDependencies": {
     "@types/dialogflow-fulfillment": "^0.6.1"
-  }
+  },
+  "keywords": [],
+  "description": ""
 }
