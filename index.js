@@ -2,10 +2,15 @@ const express = require("express");
 const app = express();
 const { WebhookClient,Suggestion } = require("dialogflow-fulfillment");
 //const {Card, Suggestion, Payload} = require('dialogflow-fulfillment');
+const axios = require('axios');
 
-app.get("/", function (req, res) {
+// URL de la API
+const url = 'https://backend-production-7023.up.railway.app/api/';
+
+app.get("/hell", function (req, res) {
   res.send("Hello World");
 });
+
 
 app.post("/webhook", express.json(), function (req, res) {
   const agent = new WebhookClient({ request: req, response: res });
@@ -21,6 +26,21 @@ app.post("/webhook", express.json(), function (req, res) {
     agent.add(new Suggestion('Ver total de categorías'));
   }
 
+  function getCategories(agent) {
+    axios.get(url+'all-categories')
+      .then(response => {
+        // Manejar la respuesta
+        const categories = response.data;
+        agent.add(`Las categorías disponibles son: ${categories.join(', ')}`);
+      })
+      .catch(error => {
+        // Manejar el error
+        console.error(error);
+        agent.add(`Lo siento, hubo un error al obtener las categorías.`);
+      });
+  }
+
+
   function fallback(agent) {
     agent.add(`I didn't understand`);
     agent.add(`I'm sorry, can you try again?`);
@@ -30,10 +50,11 @@ app.post("/webhook", express.json(), function (req, res) {
       agent.add(`Esta es la respuesta: ` + i);
     }
   } */
+
   let intentMap = new Map();
   intentMap.set("Default Welcome Intent", welcome);
   intentMap.set("Default Fallback Intent", fallback);
-  //intentMap.set("ProbandoWebhook", ProbandoWebhook);
+  intentMap.set("ViewCategory", getCategories);
   // intentMap.set('your intent name here', yourFunctionHandler);
   // intentMap.set('your intent name here', googleAssistantHandler);
   agent.handleRequest(intentMap);
