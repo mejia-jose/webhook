@@ -27,13 +27,18 @@ app.post("/webhook", express.json(), function (req, res) {
   }
 
  
-  function getCategories(agent) 
-  {
+  function getCategories(agent) {
     return axios
       .get(url + "all-categories")
       .then((response) => {
         const categories = response.data;
-        agent.add(`Las categorías disponibles son: ${categories.join(", ")}`);
+        if (categories.length > 0) {
+          categories.forEach(category => {
+            agent.add(`Categoría: ${category.name}`);
+          });
+        } else {
+          agent.add("No hay categorías disponibles.");
+        }
       })
       .catch((error) => {
         console.error(error);
