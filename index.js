@@ -1,6 +1,7 @@
 const express = require("express");
 const app = express();
-const { WebhookClient } = require("dialogflow-fulfillment");
+const { WebhookClient,Suggestion } = require("dialogflow-fulfillment");
+//const {Card, Suggestion, Payload} = require('dialogflow-fulfillment');
 
 app.get("/", function (req, res) {
   res.send("Hello World");
@@ -11,23 +12,28 @@ app.post("/webhook", express.json(), function (req, res) {
   console.log("Dialogflow Request headers: " + JSON.stringify(req.headers));
   console.log("Dialogflow Request body: " + JSON.stringify(req.body));
 
-  function welcome(agent) {
-    agent.add(`Welcome to my agent!`);
+  function welcome(agent)
+  {
+    agent.add(`Hola, ¿en qué puedo ayudarte?`);
+    agent.add(`¿Qué deseas hacer?`);
+    agent.add(new Suggestion('Visualizar categorías'));
+    agent.add(new Suggestion('Ver productos por categoría'));
+    agent.add(new Suggestion('Ver total de categorías'));
   }
 
   function fallback(agent) {
     agent.add(`I didn't understand`);
     agent.add(`I'm sorry, can you try again?`);
   }
-  function ProbandoWebhook(agent) {
+ /*  function ProbandoWebhook(agent) {
     for (let i = 1; i <= 5; i++) {
       agent.add(`Esta es la respuesta: ` + i);
     }
-  }
+  } */
   let intentMap = new Map();
   intentMap.set("Default Welcome Intent", welcome);
   intentMap.set("Default Fallback Intent", fallback);
-  intentMap.set("ProbandoWebhook", ProbandoWebhook);
+  //intentMap.set("ProbandoWebhook", ProbandoWebhook);
   // intentMap.set('your intent name here', yourFunctionHandler);
   // intentMap.set('your intent name here', googleAssistantHandler);
   agent.handleRequest(intentMap);
