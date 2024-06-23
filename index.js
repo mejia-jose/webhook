@@ -40,7 +40,7 @@ app.post("/webhook", express.json(), function (req, res) {
 
   function getProductsByCategoryTwo(agent)
   {
-    const category = agent.parameters.category;
+    const category = agent.parameters.Category;
     console.log(category);
     return axios.get('https://backend-production-7023.up.railway.app/api/get-products/'+category)
     .then(response =>
