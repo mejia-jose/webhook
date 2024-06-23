@@ -224,7 +224,7 @@ app.post("/webhook", express.json(), function (req, res) {
   //intentMap.set("getProductsByCategoryTwo", getProductsByCategoryTwo);
   intentMap.set("getProductsByCategoryTwo", getCategoriesSugestionsTotalProducts);
   
-  intentMap.set('getProductsByCategoryOne',getProductsByCategoryOne);
+  intentMap.set('getProductsByCategoryOne',getProductsByCategoryTwo);
   //intentMap.set('totalProductsCategory',getProductsByCategoryTwo);
   intentMap.set('totalProductsCategory',totalProductsCategory);
   intentMap.set('viewOptions',viewOptions);
