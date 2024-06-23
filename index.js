@@ -14,23 +14,29 @@ app.post("/webhook", express.json(), function (req, res) {
  // console.log("Dialogflow Request headers: " + JSON.stringify(req.headers));
  // console.log("Dialogflow Request body: " + JSON.stringify(req.body));
 
-  function welcome(agent)
+  async function welcome(agent)
   {
-    agent.add(`Hola, ¿en qué puedo ayudarte?`);
-    agent.add(`¿Qué deseas hacer?`);
-    agent.add(new Suggestion('Visualizar categorías'));
-    agent.add(new Suggestion('Ver productos por categoría'));
-    agent.add(new Suggestion('Total productos por categoría'));
-    agent.add(new Suggestion('Ver más opciones...'));
+    return new Promise(() =>
+    {
+      agent.add(`Hola, ¿en qué puedo ayudarte?`);
+      agent.add(`¿Qué deseas hacer?`);
+      agent.add(new Suggestion('Visualizar categorías'));
+      agent.add(new Suggestion('Ver productos por categoría'));
+      agent.add(new Suggestion('Total productos por categoría'));
+      agent.add(new Suggestion('Ver más opciones...'));
+    });
   }
 
-  function viewOptions(agent)
+  async function viewOptions(agent)
   {
-    agent.add(`Por favor, selecciona una opción:`);
-    agent.add(new Suggestion('Insertar categoría'));
-    agent.add(new Suggestion('Insertar productos'));
-    agent.add(new Suggestion('Insertar usuarios'));
-    agent.add(new Suggestion('Ver documentación de la api'));
+    return new Promise(() =>
+    {
+      agent.add(`Por favor, selecciona una opción:`);
+      agent.add(new Suggestion('Insertar categoría'));
+      agent.add(new Suggestion('Insertar productos'));
+      agent.add(new Suggestion('Insertar usuarios'));
+      agent.add(new Suggestion('Ver documentación de la api'));
+    });
   }
 
   function InsertCategoria()
@@ -38,55 +44,64 @@ app.post("/webhook", express.json(), function (req, res) {
     //window.location.reload();
   }
 
-  function getProductsByCategoryTwo(agent)
+  async function getProductsByCategoryTwo(agent)
   {
-    const category = agent.parameters.Category;
-    console.log(category);
-    return axios.get('https://backend-production-7023.up.railway.app/api/get-products/'+category)
-    .then(response =>
+    return new Promise((resolve, reject) =>
     {
-        const products = response.data.products;
 
-        // Verifica que products exista y sea un array
-        if (Array.isArray(products))
-        {
-            if (products.length == 1)
-            {
-              agent.add(`Los productos disponibles de la categoría ${category} son:`);
-              agent.add('1. ' + products[0].name);
+      const category = agent.parameters.Category;
+      console.log(category);
+      axios.get('https://backend-production-7023.up.railway.app/api/get-products/'+category)
+      .then(response =>
+      {
+          const products = response.data.products;
 
-            } else if (products.length > 0)
-            {
-              agent.add(`Los productos disponibles de la categoría  ${category} son:`);
-              let i = 1;
-              products.forEach(prod => {
-                  agent.add(i + '. ' + prod.name);
-                  i++;
-              });
-            } else
-            {
+          // Verifica que products exista y sea un array
+          if (Array.isArray(products))
+          {
+              if (products.length == 1)
+              {
+                agent.add(`Los productos disponibles de la categoría ${category} son:`);
+                agent.add('1. ' + products[0].name);
+
+              } else if (products.length > 0)
+              {
+                agent.add(`Los productos disponibles de la categoría  ${category} son:`);
+                let i = 1;
+                products.forEach(prod => {
+                    agent.add(i + '. ' + prod.name);
+                    i++;
+                });
+              } else
+              {
+                agent.add(`No se encontraron productos para la categoría ${category}.`);
+              }
+          } else if (products && typeof products === 'object')
+          {
+              // Si products no es un array pero es un objeto
+              agent.add(`El producto disponible para la categoría ${category} es:`);
+              agent.add('1. ' + products.name);
+          } else
+          {
               agent.add(`No se encontraron productos para la categoría ${category}.`);
-            }
-        } else if (products && typeof products === 'object')
-        {
-            // Si products no es un array pero es un objeto
-            agent.add(`El producto disponible para la categoría ${category} es:`);
-            agent.add('1. ' + products.name);
-        } else
-        {
-            agent.add(`No se encontraron productos para la categoría ${category}.`);
-        }
-        agent.add(new Suggestion("Regresar al menu anterior"));
-        agent.add(new Suggestion("Finalizar"));
-    })
-    .catch(error => {
-        console.error('Error al obtener los productos:', error);
+          }
+          agent.add(new Suggestion("Regresar al menu anterior"));
+          agent.add(new Suggestion("Finalizar"));
+          resolve(response.data);
+      })
+      .catch(error => {
+          console.error('Error al obtener los productos:', error);
+          reject(error);
+      });
     });
   }
 
-  function getCategories(agent)
-  {
-    return axios.get('https://backend-production-7023.up.railway.app/api/all-categories')
+  async function getCategories(agent)
+  { 
+    return new Promise((resolve, reject) =>
+    {
+
+      axios.get('https://backend-production-7023.up.railway.app/api/all-categories')
       .then(response => {
         const { categories } = response.data;
         if (categories.length > 0)
@@ -109,11 +124,15 @@ app.post("/webhook", express.json(), function (req, res) {
         console.error('Error al obtener categorías:', error);
         agent.add('Lo siento, hubo un error al obtener las categorías.');
       });
+      
+    });
   }
 
-  function getCategoriesSugestions(agent)
+  async function getCategoriesSugestions(agent)
   {
-    return axios.get('https://backend-production-7023.up.railway.app/api/all-categories')
+    return new Promise((resolve, reject) =>
+    {
+      axios.get('https://backend-production-7023.up.railway.app/api/all-categories')
       .then(response => {
         const { categories } = response.data;
         if (categories.length > 0)
@@ -135,11 +154,14 @@ app.post("/webhook", express.json(), function (req, res) {
         console.error('Error al obtener categorías:', error);
         agent.add('Lo siento, hubo un error al obtener las categorías.');
       });
+    });
   }
 
-  function getCategoriesSugestionsTotalProducts(agent)
-  {
-    return axios.get('https://backend-production-7023.up.railway.app/api/all-categories')
+  async function getCategoriesSugestionsTotalProducts(agent)
+  { 
+    return new Promise((resolve, reject) => {
+      
+      axios.get('https://backend-production-7023.up.railway.app/api/all-categories')
       .then(response => {
         const { categories } = response.data;
         if (categories.length > 0)
@@ -161,27 +183,30 @@ app.post("/webhook", express.json(), function (req, res) {
         console.error('Error al obtener categorías:', error);
         agent.add('Lo siento, hubo un error al obtener las categorías.');
       });
+    });
   }
 
-  function totalProductsCategory(agent)
+  async function totalProductsCategory(agent)
   {
-    const category = agent.parameters.Category;
-    console.log(category)
-    return axios.get('https://backend-production-7023.up.railway.app/api/get-total-products/'+category)
-    .then(response =>
+    return new Promise((resolve, reject) =>
     {
-      const products = response.data;
-      agent.add(`El total de productos disponibles para la categoría ${category} es:`);
-      agent.add('Cantidad :' + products.Total);
-      agent.add(new Suggestion("Regresar al menu anterior"));
-      agent.add(new Suggestion("Finalizar"));
-    })
-    .catch(error => {
-        agent.add(`Error al obtener el total de productos de la categoría: ${category}`, error);
+      const category = agent.parameters.Category;
+      console.log(category)
+      axios.get('https://backend-production-7023.up.railway.app/api/get-total-products/'+category)
+      .then(response =>
+      {
+        const products = response.data;
+        agent.add(`El total de productos disponibles para la categoría ${category} es:`);
+        agent.add('Cantidad :' + products.Total);
         agent.add(new Suggestion("Regresar al menu anterior"));
         agent.add(new Suggestion("Finalizar"));
+      })
+      .catch(error => {
+          agent.add(`Error al obtener el total de productos de la categoría: ${category}`, error);
+          agent.add(new Suggestion("Regresar al menu anterior"));
+          agent.add(new Suggestion("Finalizar"));
+      });
     });
-    
   }
 
   function getProductsByCategoryOne(agent)
